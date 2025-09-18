@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
-import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/prisma.service';
+import { PrismaModule } from 'src/prisma.module';
+import { UserService } from './user.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Module({
+  imports: [PrismaModule, PrismaModule],
   controllers: [UserController],
-  providers: [UserService, CreateUserDto, PrismaService],
+  providers: [CreateUserDto, UpdateUserDto, UserService, PrismaService],
+  exports: [UserService],
 })
 export class UserModule { }
