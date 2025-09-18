@@ -1,37 +1,74 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Prisma, User } from 'generated/prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    private createUserDto: CreateUserDto,
     private prisma: PrismaService,
+    private createUserDto: CreateUserDto,
   ) { }
+
+  async user(
+    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
+  ): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: userWhereUniqueInput,
+    });
+  }
+
+  async findAll(params: {
+    where: Prisma.UserWhereUniqueInput;
+  }) {
+    const { where } = params;
+    return this.prisma.user.findMany({
+      where,
+    });
+  }
+
+  async users(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.UserWhereUniqueInput;
+    where?: Prisma.UserWhereInput;
+    orderBy?: Prisma.UserOrderByWithRelationInput;
+  }): Promise<User[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+    return this.prisma.user.findMany({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+    });
+  }
 
   async create(createUserDto: CreateUserDto) {
     return this.prisma.user.create({
       data: {
         name: createUserDto.name,
-        email: createUserDto.email
-      }
+        email: createUserDto.email,
+        password: createUserDto.password,
+      },
     });
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async updateUser(params: {
+    where: Prisma.UserWhereUniqueInput;
+    data: UpdateUserDto;
+  }): Promise<User> {
+    const { where, data } = params;
+    return this.prisma.user.update({
+      where,
+      data,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
+    return this.prisma.user.delete({
+      where,
+    });
   }
 }
